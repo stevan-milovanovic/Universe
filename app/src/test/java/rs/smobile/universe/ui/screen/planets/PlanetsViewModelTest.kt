@@ -1,20 +1,20 @@
 package rs.smobile.universe.ui.screen.planets
 
+import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import rs.smobile.universe.AppDispatcherRule
-import rs.smobile.universe.data.network.model.Planet
+import rs.smobile.universe.data.local.model.Planet
 import rs.smobile.universe.data.repository.PlanetRepository
 
 /**
@@ -36,7 +36,6 @@ class PlanetsViewModelTest {
         MockKAnnotations.init(this)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `test get planets with successful response`(): Unit = runTest {
         val expectedResult = listOf(
@@ -59,21 +58,18 @@ class PlanetsViewModelTest {
                 url = "https://swapi.dev/api/planets/2/"
             )
         )
-        coEvery { planetRepository.getPlanets() } returns expectedResult
+        val pagingData = PagingData.from(expectedResult)
+        coEvery { planetRepository.getPlanetsPagedFlow() } returns flowOf(pagingData)
         viewModel = PlanetsViewModel(planetRepository)
 
-        val collectJob = launch(UnconfinedTestDispatcher()) { viewModel.planets.collect() }
-
-        coVerify { planetRepository.getPlanets() }
-        assertEquals(expectedResult, viewModel.planets.value)
-
-        collectJob.cancel()
+        coVerify { planetRepository.getPlanetsPagedFlow() }
+        assertEquals(expectedResult, viewModel.pagingDataFlow.asSnapshot())
     }
 
     @Test(expected = Exception::class)
     fun `test get planets with exception thrown`(): Unit = runTest {
         val exception = Exception("Unexpected exception while trying to fetch planets")
-        coEvery { planetRepository.getPlanets() } throws exception
+        coEvery { planetRepository.getPlanetsPagedFlow() } throws exception
         viewModel = PlanetsViewModel(planetRepository)
     }
 

@@ -1,6 +1,6 @@
 package rs.smobile.universe.data.repository
 
-import rs.smobile.universe.data.network.model.Planet
+import rs.smobile.universe.data.local.model.Planet
 
 
 object PlanetsProvider {

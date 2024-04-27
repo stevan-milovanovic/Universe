@@ -1,13 +1,10 @@
 package rs.smobile.universe.ui.screen.planets
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import rs.smobile.universe.data.network.model.Planet
+import kotlinx.coroutines.flow.Flow
+import rs.smobile.universe.data.local.model.Planet
 import rs.smobile.universe.data.repository.PlanetRepository
 import javax.inject.Inject
 
@@ -17,14 +14,7 @@ class PlanetsViewModel @Inject constructor(
     planetRepository: PlanetRepository,
 ) : ViewModel() {
 
-    private var _planets: MutableStateFlow<List<Planet>> = MutableStateFlow(listOf())
-    val planets: StateFlow<List<Planet>> = _planets
+    val pagingDataFlow: Flow<PagingData<Planet>> = planetRepository
+        .getPlanetsPagedFlow()
 
-    init {
-        viewModelScope.launch {
-            _planets.update {
-                planetRepository.getPlanets()
-            }
-        }
-    }
 }

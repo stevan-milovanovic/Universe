@@ -1,15 +1,25 @@
 package rs.smobile.universe.data.repository
 
-import rs.smobile.universe.data.network.NetworkDataSource
-import rs.smobile.universe.data.network.model.Planet
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import kotlinx.coroutines.flow.Flow
+import rs.smobile.universe.data.local.dao.PlanetDao
+import rs.smobile.universe.data.local.model.Planet
+import rs.smobile.universe.data.repository.PlanetsRemoteMediator.Companion.PAGE_SIZE
 import javax.inject.Inject
 
 class PlanetRepositoryImpl @Inject constructor(
-    private val networkDataSource: NetworkDataSource
+    private val localDataSource: PlanetDao,
+    private val remoteMediator: PlanetsRemoteMediator,
 ) : PlanetRepository {
 
-    override suspend fun getPlanets(): List<Planet> {
-        val (count, planets) = networkDataSource.getPlanets(page = 1)
-        return planets
-    }
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getPlanetsPagedFlow(): Flow<PagingData<Planet>> = Pager(
+        config = PagingConfig(pageSize = PAGE_SIZE),
+        remoteMediator = remoteMediator
+    ) {
+        localDataSource.loadAllPlanetsPaged()
+    }.flow
 }

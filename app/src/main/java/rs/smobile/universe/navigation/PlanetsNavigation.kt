@@ -1,9 +1,9 @@
 package rs.smobile.universe.navigation
 
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.paging.compose.collectAsLazyPagingItems
 import rs.smobile.universe.ui.screen.planets.PlanetsScreen
 import rs.smobile.universe.ui.screen.planets.PlanetsViewModel
 
@@ -17,10 +17,10 @@ fun NavGraphBuilder.planetsScreen(
         route = PLANETS_ROUTE
     ) {
         val viewModel: PlanetsViewModel = hiltViewModel()
-        val planets = viewModel.planets.collectAsStateWithLifecycle()
+        val planetsLazyPagingItems = viewModel.pagingDataFlow.collectAsLazyPagingItems()
 
         PlanetsScreen(
-            planets = planets.value,
+            planetsLazyPagingItems = planetsLazyPagingItems,
             onPlanetClick = onPlanetClick
         )
     }
