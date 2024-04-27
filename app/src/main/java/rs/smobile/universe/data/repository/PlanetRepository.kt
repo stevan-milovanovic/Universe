@@ -9,4 +9,6 @@ import rs.smobile.universe.data.local.model.Planet
  */
 interface PlanetRepository {
     fun getPlanetsPagedFlow(): Flow<PagingData<Planet>>
+
+    fun getPlanetFlow(planetName: String): Flow<Planet>
 }

@@ -22,4 +22,8 @@ class PlanetRepositoryImpl @Inject constructor(
     ) {
         localDataSource.loadAllPlanetsPaged()
     }.flow
+
+    override fun getPlanetFlow(planetName: String): Flow<Planet> =
+        localDataSource.observeById(planetName)
+
 }

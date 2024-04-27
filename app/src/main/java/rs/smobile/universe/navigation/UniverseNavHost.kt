@@ -17,9 +17,10 @@ fun UniverseNavHost(
         modifier = modifier,
     ) {
         planetsScreen(
-            onPlanetClick = {
-                //TODO: Navigate to Planet Details Screen
-            }
+            onPlanetClick = navController::navigateToPlanet
+        )
+        planetScreen(
+            onBackClick = navController::popBackStack
         )
     }
 }

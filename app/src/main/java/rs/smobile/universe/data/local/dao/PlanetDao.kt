@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 import rs.smobile.universe.data.local.model.Planet
 
 @Dao
@@ -31,5 +32,14 @@ interface PlanetDao {
 
     @Query("SELECT COUNT(name) FROM planet")
     fun getPlanetsCount(): Int
+
+    /**
+     * Observes a single planet.
+     *
+     * @param planetName the name of the planet.
+     * @return the planet with given name.
+     */
+    @Query("SELECT * FROM planet WHERE name = :planetName")
+    fun observeById(planetName: String): Flow<Planet>
 
 }

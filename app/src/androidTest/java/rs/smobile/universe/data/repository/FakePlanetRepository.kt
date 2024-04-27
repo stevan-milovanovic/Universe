@@ -10,4 +10,7 @@ class FakePlanetRepository @Inject constructor() : PlanetRepository {
     override fun getPlanetsPagedFlow(): Flow<PagingData<Planet>> = flowOf(
         PagingData.from(PlanetsProvider.planets)
     )
+
+    override fun getPlanetFlow(planetName: String): Flow<Planet> =
+        flowOf(PlanetsProvider.planets.first())
 }
