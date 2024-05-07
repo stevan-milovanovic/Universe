@@ -14,4 +14,12 @@ data class Planet(
     val terrain: String,
     val population: String,
     val url: String
-)
+) {
+    val detailedData: String
+        get() = "Name: $name\n" +
+                "Diameter: $diameter\n" +
+                "Climate: $climate\n" +
+                "Gravity: $gravity" +
+                "Terrain: $terrain\n" +
+                "Population: $population\n"
+}

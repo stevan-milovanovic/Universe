@@ -5,11 +5,10 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import retrofit2.HttpException
 import rs.smobile.universe.data.local.UniverseDatabase
 import rs.smobile.universe.data.local.model.Planet
 import rs.smobile.universe.data.network.NetworkDataSource
-import java.io.IOException
+import rs.smobile.universe.data.network.NetworkResult
 import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
@@ -25,42 +24,47 @@ class PlanetsRemoteMediator @Inject constructor(
         loadType: LoadType,
         state: PagingState<Int, Planet>
     ): MediatorResult {
-        return try {
-            val page = when (loadType) {
-                LoadType.REFRESH -> INITIAL_PAGE
-                LoadType.PREPEND -> {
+        val page = when (loadType) {
+            LoadType.REFRESH -> INITIAL_PAGE
+            LoadType.PREPEND -> {
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+
+            LoadType.APPEND -> {
+                if (localPlanetsCount < remotePlanetsCount) {
+                    localPlanetsCount / PAGE_SIZE + 1
+                } else {
                     return MediatorResult.Success(endOfPaginationReached = true)
                 }
-
-                LoadType.APPEND -> {
-                    if (localPlanetsCount < remotePlanetsCount) {
-                        localPlanetsCount / PAGE_SIZE + 1
-                    } else {
-                        return MediatorResult.Success(endOfPaginationReached = true)
-                    }
-                }
             }
-
-            val (remotePlanetsCount, remotePlanets) = networkDataSource.getPlanets(page)
-            this@PlanetsRemoteMediator.remotePlanetsCount = remotePlanetsCount
-
-            universeDatabase.withTransaction {
-                if (loadType == LoadType.REFRESH) {
-                    universeDatabase.planetDao().deleteAll()
-                }
-                val planets = remotePlanets.map { it.toLocal() }
-                universeDatabase.planetDao().upsertAll(planets)
-                localPlanetsCount = universeDatabase.planetDao().getPlanetsCount()
-            }
-
-            return MediatorResult.Success(
-                endOfPaginationReached = remotePlanetsCount == localPlanetsCount
-            )
-        } catch (e: IOException) {
-            MediatorResult.Error(e)
-        } catch (e: HttpException) {
-            MediatorResult.Error(e)
         }
+
+        return when (val networkResult = networkDataSource.getPlanets(page)) {
+            is NetworkResult.Error -> MediatorResult.Error(networkResult.exception)
+            is NetworkResult.Success -> handleSuccessfulNetworkResult(networkResult, loadType)
+        }
+    }
+
+    private suspend fun handleSuccessfulNetworkResult(
+        networkResult: NetworkResult.Success,
+        loadType: LoadType
+    ): MediatorResult {
+        val (remotePlanetsCount, remotePlanets) = networkResult.data
+
+        this@PlanetsRemoteMediator.remotePlanetsCount = remotePlanetsCount
+
+        universeDatabase.withTransaction {
+            if (loadType == LoadType.REFRESH) {
+                universeDatabase.planetDao().deleteAll()
+            }
+            val planets = remotePlanets.map { it.toLocal() }
+            universeDatabase.planetDao().upsertAll(planets)
+            localPlanetsCount = universeDatabase.planetDao().getPlanetsCount()
+        }
+
+        return MediatorResult.Success(
+            endOfPaginationReached = remotePlanetsCount == localPlanetsCount
+        )
     }
 
     companion object {

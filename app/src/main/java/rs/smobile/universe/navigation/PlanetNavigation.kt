@@ -10,6 +10,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import kotlinx.coroutines.flow.asStateFlow
 import rs.smobile.universe.ui.screen.common.LoadingScreen
 import rs.smobile.universe.ui.screen.planet.PlanetScreen
 import rs.smobile.universe.ui.screen.planet.PlanetViewModel
@@ -31,9 +32,7 @@ fun NavController.navigateToPlanet(planetName: String) {
     }
 }
 
-fun NavGraphBuilder.planetScreen(
-    onBackClick: () -> Unit
-) {
+fun NavGraphBuilder.planetScreen() {
     composable(
         route = "$PLANET_ROUTE/{$PLANET_NAME_ARG}",
         arguments = listOf(
@@ -46,7 +45,8 @@ fun NavGraphBuilder.planetScreen(
         planet?.let {
             PlanetScreen(
                 planet = it,
-                onBackClick = onBackClick
+                onCardClick = viewModel::addSnackbarAction,
+                planetScreenAction = viewModel.actionsFlow.asStateFlow()
             )
         } ?: LoadingScreen()
     }

@@ -1,3 +1,5 @@
 <resources>
 	<string name="app_name">Universe</string>
+    <string name="retry">Retry</string>
+    <string name="it_seems_that_you_re_missing_internet_connection_please_try_again">It seems that you\'re missing internet connection, please try again.</string>
 </resources>

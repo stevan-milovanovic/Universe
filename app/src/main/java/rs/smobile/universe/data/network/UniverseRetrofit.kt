@@ -35,18 +35,23 @@ class UniverseRetrofit @Inject constructor(
         private const val TAG = "Universe Network Layer"
     }
 
-    override suspend fun getPlanets(page: Int): Pair<Int, List<Planet>> {
+    override suspend fun getPlanets(page: Int): NetworkResult {
         return try {
             val response = planetsNetworkApi.getPlanets(page)
             val result = response.body()
             if (response.isSuccessful && result != null) {
-                (result.count to result.results)
+                NetworkResult.Success(result.count to result.results)
             } else {
-                (0 to listOf())
+                NetworkResult.Success(0 to listOf())
             }
         } catch (e: Exception) {
             Log.e(TAG, "Unexpected exception while trying to fetch planets", e)
-            throw e
+            NetworkResult.Error(e)
         }
     }
+}
+
+sealed class NetworkResult {
+    data class Success(val data: Pair<Int, List<Planet>>) : NetworkResult()
+    data class Error(val exception: Exception) : NetworkResult()
 }

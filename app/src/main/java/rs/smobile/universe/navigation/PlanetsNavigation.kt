@@ -21,7 +21,7 @@ fun NavGraphBuilder.planetsScreen(
 
         PlanetsScreen(
             planetsLazyPagingItems = planetsLazyPagingItems,
-            onPlanetClick = onPlanetClick
+            onPlanetClick = onPlanetClick,
         )
     }
 }

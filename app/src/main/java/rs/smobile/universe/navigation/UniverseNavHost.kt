@@ -19,8 +19,6 @@ fun UniverseNavHost(
         planetsScreen(
             onPlanetClick = navController::navigateToPlanet
         )
-        planetScreen(
-            onBackClick = navController::popBackStack
-        )
+        planetScreen()
     }
 }
