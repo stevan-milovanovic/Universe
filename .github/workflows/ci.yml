@@ -27,3 +27,5 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+      - name: Unit tests
+        uses: vukan-markovic/Github-Android-Action@1.2
