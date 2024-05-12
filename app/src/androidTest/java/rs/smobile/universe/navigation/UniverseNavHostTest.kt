@@ -1,6 +1,7 @@
 package rs.smobile.universe.navigation
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -67,8 +68,10 @@ class UniverseNavHostTest {
 
             onNodeWithTag(PLANET_DETAILS_CARD_TEST_TAG).performClick()
 
-            onNodeWithText(planet.terrain)
-                .assertDoesNotExist()
+            composeTestRule.onNode(
+                hasText(planet.detailedData),
+                useUnmergedTree = true
+            ).assertIsDisplayed()
         }
     }
 
