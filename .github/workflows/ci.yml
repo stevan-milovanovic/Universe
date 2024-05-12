@@ -24,9 +24,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
+      
       - name: Unit tests
-      - uses: vukan-markovic/Github-Android-Action@1.2
+        uses: vukan-markovic/Github-Android-Action@1.2
 
       - name: UI tests
-      - uses: vgaidarji/android-github-actions-emulator@v1.0.1
+        uses: vgaidarji/android-github-actions-emulator@v1.0.1
